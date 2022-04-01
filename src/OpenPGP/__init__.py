@@ -1,11 +1,19 @@
 # Pure Python implementation of OpenPGP <http://tools.ietf.org/html/rfc4880>
 # Port of openpgp-php <http://github.com/bendiken/openpgp-php>
-from ._meta import __author__, __copyright__, __email__, __home__
-from ._version import __version__
+import base64
+import bz2
+import hashlib
+import itertools
+import re
+import sys
+import textwrap
+import zlib
+from math import ceil, floor, log
 from struct import pack, unpack
 from time import time
-from math import ceil, floor, log
-import zlib, bz2, base64, textwrap, hashlib, re, sys, itertools
+
+from ._meta import __author__, __copyright__, __email__, __home__
+from ._version import __version__
 
 __all__ = [
     "__author__",
@@ -13,7 +21,7 @@ __all__ = [
     "__email__",
     "__home__",
     "__version__",
-    # Library start        
+    # Library start
     "Message",
     "S2K",
     # Packets
