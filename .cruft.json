@@ -1,0 +1,21 @@
+{
+  "template": "https://github.com/cookiecutter-serious/pylib.git",
+  "commit": "18c55b04ed0235041bc4fb582af8f200b3c066bb",
+  "checkout": null,
+  "context": {
+    "cookiecutter": {
+      "full_name": "Very Good Security",
+      "email": "dev@verygoodsecurity.com",
+      "github_username": "mahmoudimus",
+      "project_name": "OpenPGP-Python",
+      "project_slug": "openpgp_python",
+      "project_short_description": "OpenPGP",
+      "year": "2022",
+      "_extensions": [
+        "jinja2_time.TimeExtension"
+      ],
+      "_template": "https://github.com/cookiecutter-serious/pylib.git"
+    }
+  },
+  "directory": null
+}
