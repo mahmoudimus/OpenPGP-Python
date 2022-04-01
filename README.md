@@ -1,7 +1,12 @@
 # OpenPGP-Python
 
-[![Code style: yapf](https://img.shields.io/badge/code%20style-yapf-blue)](https://github.com/google/yapf)
-[![License](https://img.shields.io/github/license/mahmoudimus/OpenPGP-Python)](https://github.com/mahmoudimus/OpenPGP-Python/blob/master/LICENSE)
+<h2 align="center">OpenPGP-Python</h2>
+
+<p align="center">
+<a href="https://github.com/mahmoudimus/OpenPGP-Python/actions"><img alt="Actions Status" src="https://github.com/mahmoudimus/OpenPGP-Python/workflows/Test/badge.svg"></a>
+<a href="https://github.com/mahmoudimus/OpenPGP-Python/blob/master/LICENSE"><img alt="License: MIT" src="(https://img.shields.io/github/license/mahmoudimus/OpenPGP-Python"></a>
+<a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
+</p>
 
 This is a port of OpenPGP-PHP <http://github.com/bendiken/openpgp-php> to python.
 
