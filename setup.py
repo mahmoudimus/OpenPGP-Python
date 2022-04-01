@@ -18,7 +18,7 @@ _TEST_REQUIRES = [
     'pytest-mock',
     'pytest-pep8',
     'pytest-pylint',
-    'pytest-yapf3>=0.4.0',
+    'pytest-black',
 ]
 
 setup(
@@ -45,7 +45,7 @@ setup(
             'flake8',
             'isort',
             'pylint<2.3.0',
-            'yapf',
+            'black',
         ],
         'cryptography': [
             "cryptography<0.7",
