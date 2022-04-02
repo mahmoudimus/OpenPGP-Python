@@ -17,6 +17,7 @@ class TestMessageVerification(unittest.TestCase):
             open(os.path.dirname(__file__) + "/data/" + path, "rb").read()
         )
         verify = OpenPGP.Crypto.Wrapper(pkeyM)
+        print(m.signatures())
         self.assertEqual(verify.verify(m), m.signatures())
 
     def testUncompressedOpsRSA(self):
@@ -58,9 +59,11 @@ class TestMessageVerification(unittest.TestCase):
         )
 
     def testUncompressedOpsDSA(self):
+        self.maxDiff = None
         self.oneMessage("pubring.gpg", "uncompressed-ops-dsa.gpg")
 
     def testUncompressedOpsDSAsha384(self):
+        self.maxDiff = None
         self.oneMessage("pubring.gpg", "uncompressed-ops-dsa-sha384.txt.gpg")
 
 

@@ -34,7 +34,7 @@ setup(
     # Requires
     python_requires='>=3.5',
     install_requires=[
-        "pycrypto",
+        "pycryptodome",
     ],
     setup_requires=[
         'pytest-runner',

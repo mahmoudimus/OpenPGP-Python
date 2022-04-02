@@ -54,11 +54,11 @@ class Wrapper:
         return self._key
 
     def public_key(self, keyid=None):
-        """Get _RSAobj or _DSAobj for the public key"""
+        """Get RsaKey or DsaKey for the public key"""
         return self.convert_public_key(self.key(keyid))
 
     def private_key(self, keyid=None):
-        """Get _RSAobj or _DSAobj for the public key"""
+        """Get RsaKey or DsaKey for the public key"""
         return self.convert_private_key(self.key(keyid))
 
     def encrypted_data(self):
@@ -93,7 +93,7 @@ class Wrapper:
         return True
 
     def verify(self, packet):
-        """Pass a message to verify with this key, or a key (OpenPGP, _RSAobj, or _DSAobj)
+        """Pass a message to verify with this key, or a key (OpenPGP, RsaKey, or DsaKey)
         to check this message with
         Second optional parameter to specify which signature to verify (if there is more than one)
         """

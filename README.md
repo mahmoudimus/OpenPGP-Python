@@ -4,7 +4,7 @@
 
 <p align="center">
 <a href="https://github.com/mahmoudimus/OpenPGP-Python/actions"><img alt="Actions Status" src="https://github.com/mahmoudimus/OpenPGP-Python/workflows/Test/badge.svg"></a>
-<a href="https://github.com/mahmoudimus/OpenPGP-Python/blob/master/LICENSE"><img alt="License: MIT" src="(https://img.shields.io/github/license/mahmoudimus/OpenPGP-Python"></a>
+<a href="https://github.com/mahmoudimus/OpenPGP-Python/blob/master/LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/License-MIT-green.svg"></a>
 <a href="https://github.com/psf/black"><img alt="Code style: black" src="https://img.shields.io/badge/code%20style-black-000000.svg"></a>
 </p>
 

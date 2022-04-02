@@ -20,6 +20,7 @@ import Crypto.Hash.SHA256
 import Crypto.Hash.SHA384
 import Crypto.Hash.SHA512
 import Crypto.PublicKey.DSA
+import Crypto.Signature.DSS
 import Crypto.PublicKey.RSA
 import Crypto.Random
 import Crypto.Random.random
@@ -59,11 +60,11 @@ class Wrapper:
         return self._key
 
     def public_key(self, keyid=None):
-        """Get _RSAobj or _DSAobj for the public key"""
+        """Get RsaKey or DsaKey for the public key"""
         return self.convert_public_key(self.key(keyid))
 
     def private_key(self, keyid=None):
-        """Get _RSAobj or _DSAobj for the public key"""
+        """Get RsaKey or DsaKey for the public key"""
         return self.convert_private_key(self.key(keyid))
 
     def encrypted_data(self):
@@ -81,22 +82,30 @@ class Wrapper:
         key = self.public_key(s.issuer())
         if not key or (
             s.key_algorithm_name() == "DSA"
-            and not isinstance(key, Crypto.PublicKey.DSA._DSAobj)
+            and not isinstance(key, Crypto.PublicKey.DSA.DsaKey)
         ):
             return False
         if s.key_algorithm_name() == "DSA":
-            dsaSig = (
-                Crypto.Util.number.bytes_to_long(s.data[0]),
-                Crypto.Util.number.bytes_to_long(s.data[1]),
-            )
-            dsaLen = int(Crypto.Util.number.size(key.q) / 8)
-            return key.verify(h.new(m).digest()[0:dsaLen], dsaSig)
+            if len(s.data) == 1:
+                signature = s.data[0]
+            elif len(s.data) == 2: 
+                signature = s.data[0] + s.data[1]
+            else:
+                raise ValueError("Unexpected length in s.data %s!" % len(s.data))
+
+            verifier = Crypto.Signature.DSS.new(key, 'fips-186-3')           
+            try:
+                verifier.verify(h.new(m), signature)
+                return True
+            except ValueError as e:
+                print("signature verification failed!", e, file=sys.stderr)
+                return False
         else:  # RSA
             protocol = Crypto.Signature.PKCS1_v1_5.new(key)
             return protocol.verify(h.new(m), s.data[0])
 
     def verify(self, packet):
-        """Pass a message to verify with this key, or a key (OpenPGP, _RSAobj, or _DSAobj)
+        """Pass a message to verify with this key, or a key (OpenPGP, RsaKey, or DsaKey)
         to check this message with
         Second optional parameter to specify which signature to verify (if there is more than one)
         """
@@ -133,8 +142,8 @@ class Wrapper:
 
         if (
             isinstance(packet, OpenPGP.SecretKeyPacket)
-            or isinstance(packet, Crypto.PublicKey.RSA._RSAobj)
-            or isinstance(packet, Crypto.PublicKey.DSA._DSAobj)
+            or isinstance(packet, Crypto.PublicKey.RSA.RsaKey)
+            or isinstance(packet, Crypto.PublicKey.DSA.DsaKey)
             or (
                 hasattr(packet, "__getitem__")
                 and isinstance(packet[0], OpenPGP.SecretKeyPacket)
@@ -153,8 +162,8 @@ class Wrapper:
             message = message.signature_and_data()[1]
 
         if not (
-            isinstance(key, Crypto.PublicKey.RSA._RSAobj)
-            or isinstance(packet, Crypto.PublicKey.DSA._DSAobj)
+            isinstance(key, Crypto.PublicKey.RSA.RsaKey)
+            or isinstance(packet, Crypto.PublicKey.DSA.DsaKey)
         ):
             key = self.__class__(key)
             if not keyid:
@@ -162,9 +171,9 @@ class Wrapper:
             key = key.private_key(keyid)
 
         key_algorithm = None
-        if isinstance(key, Crypto.PublicKey.RSA._RSAobj):
+        if isinstance(key, Crypto.PublicKey.RSA.RsaKey):
             key_algorithm = "RSA"
-        elif isinstance(key, Crypto.PublicKey.DSA._DSAobj):
+        elif isinstance(key, Crypto.PublicKey.DSA.DsaKey):
             key_algorithm = "DSA"
 
         sig = OpenPGP.SignaturePacket(message, key_algorithm, hash.upper())
@@ -173,12 +182,9 @@ class Wrapper:
             sig.hashed_subpackets.append(OpenPGP.SignaturePacket.IssuerPacket(keyid))
 
         def doDSA(h, m):
-            return list(
-                key.sign(
-                    h.new(m).digest()[0 : int(Crypto.Util.number.size(key.q) / 8)],
-                    Crypto.Random.random.StrongRandom().randint(1, key.q - 1),
-                )
-            )
+            signer = Crypto.Signature.DSS.new(key, 'fips-186-3')
+            signature = signer.sign(h.new(m))
+            return [signature]
 
         sig.sign_data(
             {
@@ -329,7 +335,7 @@ class Wrapper:
 
         if (
             isinstance(packet, OpenPGP.SecretKeyPacket)
-            or isinstance(packet, Crypto.PublicKey.RSA._RSAobj)
+            or isinstance(packet, Crypto.PublicKey.RSA.RsaKey)
             or (
                 hasattr(packet, "__getitem__")
                 and isinstance(packet[0], OpenPGP.SecretKeyPacket)
@@ -343,12 +349,12 @@ class Wrapper:
         if not keys or not self._message:
             return None  # Missing some data
 
-        if not isinstance(keys, Crypto.PublicKey.RSA._RSAobj):
+        if not isinstance(keys, Crypto.PublicKey.RSA.RsaKey):
             keys = self.__class__(keys)
 
         for p in self._message:
             if isinstance(p, OpenPGP.AsymmetricSessionKeyPacket):
-                if isinstance(keys, Crypto.PublicKey.RSA._RSAobj):
+                if isinstance(keys, Crypto.PublicKey.RSA.RsaKey):
                     sk = self.try_decrypt_session(keys, p.encrypted_data[2:])
                 elif len(p.keyid.replace("0", "")) < 1:
                     for k in keys.key:
@@ -564,8 +570,8 @@ class Wrapper:
         if (
             isinstance(packet, OpenPGP.Packet)
             or isinstance(packet, OpenPGP.Message)
-            or isinstance(packet, Crypto.PublicKey.RSA._RSAobj)
-            or isinstance(packet, Crypto.PublicKey.DSA._DSAobj)
+            or isinstance(packet, Crypto.PublicKey.RSA.RsaKey)
+            or isinstance(packet, Crypto.PublicKey.DSA.DsaKey)
         ):
             return packet
         elif isinstance(packet, tuple) or isinstance(packet, list):
@@ -593,7 +599,7 @@ class Wrapper:
             return (
                 lambda k: lambda iv: m.new(
                     k,
-                    mode=Crypto.Cipher.blockalgo.MODE_CFB,
+                    mode=m.MODE_CFB,
                     IV=iv or b"\0" * bs,
                     segment_size=bs * 8,
                 ),
@@ -618,8 +624,8 @@ class Wrapper:
 
     @classmethod
     def convert_key(cls, packet, private=False):
-        if isinstance(packet, Crypto.PublicKey.RSA._RSAobj) or isinstance(
-            packet, Crypto.PublicKey.DSA._DSAobj
+        if isinstance(packet, Crypto.PublicKey.RSA.RsaKey) or isinstance(
+            packet, Crypto.PublicKey.DSA.DsaKey
         ):
             return packet
         packet = cls._parse_packet(packet)
